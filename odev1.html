@@ -1,0 +1,73 @@
+<html>
+
+<body>
+
+<canvas id="glcanvas" width="512" height="512"></canvas>
+
+<select id="Rotation" size="2">
+		<option value="0">Rotate Counter-Clockwise</option>
+		<option value="1">Rotate Clockwise</option>
+</select>
+
+	
+<select id="Resize" size="2">
+		<option value="0">Make Bigger</option>
+		<option value="1">Make Smaller</option>
+</select>
+
+<select id="Colors" size="6">
+		<option value="0">Red (+)</option>
+		<option value="1">Red (-)</option>
+		<option value="2">Green (+)</option>
+		<option value="3">Green (-)</option>
+		<option value="4">Blue (+)</option>
+		<option value="5">Blue (-)</option>
+</select>
+
+</body>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+ attribute vec4 vPosition;
+
+  uniform float scalevalue;
+  uniform float theta;
+  uniform float transvalueleftright;
+  uniform float transvalueupdown;
+  
+
+  void main() {
+    vec4 rotatedPosition = vec4(cos(theta) * vPosition.x - sin(theta) * vPosition.y,sin(theta) * vPosition.x + cos(theta) * vPosition.y, 0.0,1.0); //Rotate işlemi
+      
+   
+	vec4 newloc = vec4(rotatedPosition.x * scalevalue, rotatedPosition.y * scalevalue, 0.0, 1.0); //Scale işlemi (büyütüp küçültme)
+	
+	vec4 finall = vec4(newloc.x + transvalueleftright, newloc.y + 0.0, 0.0, 1.0); //X koordinatı üzerinde translation (sağa veya sola)
+	
+	vec4 finall2 = vec4(finall.x + 0.0 , finall.y + transvalueupdown, 0.0, 1.0); // Y koordinatı üzerinde translation (yukarı veya aşağı)
+	
+	
+	gl_Position=finall2;  
+	
+   }
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment"> 
+
+	precision mediump float;
+	uniform vec4 u_Color;
+	
+	void main() {
+		gl_FragColor = u_Color; //benim u_Color a verdiğim değerlerimi fragmentımın değerine atadı
+}
+
+
+</script>
+
+<script src ="initShaders.js" ></script>
+<script src ="MV.js" ></script>
+<script src="odev1.js"></script>
+<script src="webgl-utils.js"></script>
+
+
+</html>

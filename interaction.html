@@ -1,0 +1,48 @@
+
+<html>
+
+<body>
+	
+	<canvas id="glcanvas" width="512" height="512"></canvas>
+
+	<button id = "DirectionButton">   
+		Change Rotation Direction     
+	</button>
+	
+	<select id="mymenu" size="3">
+		<option value="0">Toggle Rotation Direction X</option>
+		<option value="1">Spin Faster</option>
+		<option value="2">Spin Slower</option>
+	</select>
+
+
+</body>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+   attribute vec4 vPosition;
+   uniform float theta; //float tipinde uniform değişkeni tanımladık, ismi de theta, buraya theta açısını göndercem.
+   
+   void main(){ 
+	gl_Position.x = cos(theta) * vPosition.x - sin(theta) * vPosition.y;		//vPositiondan gelen koordinata 2 boyutlu döndürme işlemi uygulayıp pipline'da devam edecek olan
+	gl_Position.y = sin(theta) * vPosition.x + cos(theta) * vPosition.y;		//gl_Positiona atıyoruz.
+	gl_Position.z = 0.0;
+	gl_Position.w = 1.0; 
+   }
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment"> 
+   precision mediump float;
+   
+   void main() {
+		gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 ); //primitivelerin rengini mavi yaptım (ekrana çizdirceğim şeylerin(şekillerin/nesnelerin) rengi) 
+   }
+</script>
+
+<script src ="initShaders.js" ></script>
+<script src ="MV.js" ></script>
+<script src="interaction.js"></script>
+<script src="webgl-utils.js"></script>
+
+
+
+</html>

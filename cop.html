@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+//bunların hepsinin değerlerini js dosyasından atıyorum
+attribute vec4 vPosition; //köşe koordları tutuyo -ORTHO BİZE 4X4 LÜK BİR MATRİS VERDİĞİ İÇİN NOKTALARA UYGULAYABİLMEK İÇİN 4 BOYUTLU TANIMLADIK 3D+W(HOMOGEN KOORDİNAT)
+attribute vec3 vNormal; //normalleri tutuyo
+attribute vec2 vTexCoords;
+
+//varying vec3 fNormal;
+varying vec4 fPosition; 
+varying vec4 fmodelNN;
+varying vec2 fTexCoords;
+
+uniform mat4 modelViewMatrix; //döndürmeyi bu matrisle yapıyoruz (aslında kamerayı döndürüyoruz.
+uniform mat4 projectionMatrix; //görüntüleme kübü hacmini veriyor.
+
+
+void main()
+{
+	fTexCoords = vTexCoords;  //scaling texture coordinates with 1/2 (tex coord 0-2 arasındaydı hatırlarsan onları 0,1 aralığına scale ediyorum.)
+	vec4 NN = vec4(vNormal,0);				//senin kodunda tex scalleme kısmı texcoordların değer aralığına göre farklı olabilir
+	fmodelNN = modelViewMatrix * NN;		//0,1 aralığına indirmek için scale et.
+	
+	fPosition = modelViewMatrix*vPosition;
+	//fNormal = vNormal;
+	gl_Position= projectionMatrix * modelViewMatrix * vPosition;
+	
+} 
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+//varying vec4 fNormal;
+varying vec4 fPosition;
+varying vec4 fmodelNN; 
+varying vec2 fTexCoords; //get interpolated and receive here
+
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform vec4 lightDirection;
+uniform float shininess;
+
+uniform sampler2D texMap;
+
+void main()
+{
+	//viewer vektörü olarak düşün, viewerın baktığı yöndeki vektör (kamera yönü - tarafta old için - koyduk
+	vec3 pos = -(fPosition).xyz; //kamera yönünü ifade ediyor. //modelViewMatrix*vpostion.x , modelViewMatrix*vpostion.y , modelViewMatrix*vpostion.z
+	
+	//fixed light
+    vec3 L = normalize(-lightDirection.xyz); //- + LAR YÖNÜ İFADE EDİYO HOCALAR EN GÜZEL GÖREBİLECEĞİMİZ ŞEKİLDE AYARLAMIŞ HİÇ NEDEN DİYE DÜŞÜNME
+	vec3 V = normalize(-pos);
+	vec3 H = normalize(L+V);
+	
+	
+	//transform vertex normal into eye coordinates
+	vec3 N = normalize( (fmodelNN).xyz );
+	
+	//compute terms in the illumination equation
+	vec4 ambient = ambientProduct; //ka
+	
+	float dotLN = dot(L,N);
+	float diffuseCosAngle = max(dotLN, 0.0 );
+	vec4 diffuse = diffuseCosAngle * diffuseProduct;
+	
+	float specularCosAngle= pow( max(dot(N,H),0.0), shininess);
+	vec4 specular = specularCosAngle * specularProduct;
+	
+	if(dotLN < 0.0){
+		//ambient = vec4(0.0,1.0,0.0,1.0);
+		//diffuse = vec4(0.0,0.0,0.0,1.0);
+		specular= vec4(0.0,0.0,0.0,1.0);
+	}
+	
+	vec4 fColor = (ambient + diffuse + specular); //3ünü toplayınca o pixeldeki tonlamayı/rengi hesaplamış oluyoruz
+	
+	fColor.a = 1.0; //FCOLOR UN ALFASINI(OPAKLIĞI) 1 YAPTIK
+	
+    gl_FragColor = fColor * texture2D(texMap, fTexCoords); //direkt gl_FragColor=ambient+diffuse+specular şeklinde de oluyo
+	
+}
+</script>
+
+<p> </p>
+<button id = "XButton">Rotate around X</button>
+<button id = "YButton">Rotate around Y</button>
+<button id = "ZButton">Rotate around Z</button>
+<p> </p>
+<!--button id = "Button4">Increase Subdivisions</button>
+<button id = "Button5">Decrease Subdivisions</button-->
+
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="initShaders.js"></script>
+<script type="text/javascript" src="MV.js"></script>
+<script type="text/javascript" src="17290054.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<html>
+
+<body>
+
+<canvas id="glcanvas" width="512" height="512"></canvas>
+
+</body>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+   attribute vec4 vPosition;
+	varying vec4 fColor;
+
+void main() {
+	gl_PointSize = 1.0;
+	fColor = vec4((1.0+vPosition.xyz)/2.0, 1.0);
+	gl_Position = vPosition;
+}
+
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment"> 
+   precision mediump float;
+	varying vec4 fColor;
+
+	void main()
+	{
+		gl_FragColor = fColor;
+	}
+
+</script>
+
+<script src ="initShaders.js" ></script>
+<script src ="MV.js" ></script>
+<script src="sierpinski3.js"></script>
+
+
+</html>
